@@ -1,0 +1,70 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Notification</title>
+</head>
+
+<body>
+    <div id="toast-container"></div>
+
+    <h1>push notification using node js</h1>
+    <script>
+        async function registerServiceWorker() {
+            const PUBLIC_VAPID_KEY =
+                "BJsspjPm6h2oXHm2-vD0ajndRsHqk4uaqDOjh4iOD3Eegf1Vt9VJuM0LMCo4KrWR2EKcmJcg9jVCPwScpF6LvQk"; try {
+                    // Register service worker
+                    const serviceWorkerRegistration = await navigator.serviceWorker.register('./serviceworker.js');
+                    console.log('Service Worker Registered...');
+                    // serviceWorkerRegistration.pushManager.getSubscription().then(function (subscription) {
+                    //     if (subscription) {
+                    //         // Unsubscribe the existing subscription
+                    //         subscription.unsubscribe().then(function (successful) {
+                    //             if (successful) {
+                    //                 // Subscription successfully unsubscribed
+                    //                 // Now, you can attempt to register the service worker again with new credentials
+                    //                 registerServiceWorker();
+                    //             }
+                    //         }).catch(function (error) {
+                    //             console.error('Error unsubscribing:', error);
+                    //         });
+                    //     } else {
+                    //         // No existing subscription, proceed to register service worker
+                    //         registerServiceWorker();
+                    //     }
+                    // });
+
+                    const permission = await Notification.requestPermission();
+                    if (permission === "granted") {
+                        // Subscribe to push notifications
+                        const subscription = await serviceWorkerRegistration.pushManager.subscribe({
+                            applicationServerKey: PUBLIC_VAPID_KEY,
+                            userVisibleOnly: true
+                        });
+                        fetch('http://localhost:2000/subscribe', {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(subscription)
+                        });
+
+                        // Send subscription data to server 
+                        console.log("Notification permission granted.");
+                    } else {
+                        console.log("Notification permission denied.");
+                    }
+                } catch (error) {
+                    console.error('Service Worker Registration Failed:', error);
+                }
+        }
+
+        if ("serviceWorker" in navigator) {
+            registerServiceWorker();
+        }
+    </script>
+
+</body>
+
+</html>
