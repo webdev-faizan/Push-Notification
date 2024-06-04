@@ -33,7 +33,7 @@ app.post("/subscribe", (req, resp) => {
   // };
   const payload = JSON.stringify({
     title: "toasty",
-    body: "ni how are you",
+    body: "you have new message",
   });
   webpush.sendNotification(subscription, payload).catch((error) => {
     console.log(error);
